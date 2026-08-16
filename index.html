@@ -88,6 +88,15 @@ input[type=range]{padding:0;accent-color:#a77a2d}
 details{margin-top:20px}summary{cursor:pointer;font:600 .6rem/1 Cinzel,serif;letter-spacing:.2em;text-transform:uppercase;color:var(--gold)}
 hr.orn{border:none;height:1px;background:linear-gradient(to right,transparent,var(--gold),transparent);opacity:.5}
 footer{padding:56px 24px 80px;text-align:center}
+.hero-bg{background:linear-gradient(180deg,rgba(23,21,17,.45) 0%,rgba(23,21,17,.62) 55%,rgba(23,21,17,.96) 100%),url(assets/hero.jpg) center/cover no-repeat}
+.kitphoto{width:100%;display:block;border:1px solid var(--line);margin-bottom:22px}
+.unit .ph{height:130px;border:1px solid var(--line);background-size:300% 200%;background-repeat:no-repeat;margin-bottom:10px}
+.mapphoto{position:relative;overflow:hidden}
+.mapphoto img{width:100%;display:block}
+.mapphoto .fogx{position:absolute;inset:0;background:rgba(35,26,15,.66);pointer-events:none;transition:clip-path .5s ease}
+.mapphoto .nd{position:absolute;transform:translate(-50%,-50%);width:26px;height:26px;border-radius:50%;border:2px solid #5A211F;background:#D8C39A;color:#241A12;font:700 12px Georgia,serif;pointer-events:none;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,.5)}
+.mapphoto .nd.on{background:#C69843;border-color:#241A12}
+.mapphoto .nd.dim{opacity:.55}
 @media(max-width:760px){.invwrap{grid-template-columns:1fr}.itemcard{position:static}}
 @media(prefers-reduced-motion:no-preference){
  h1{background-size:200% auto;animation:sh 7s linear infinite}
@@ -129,7 +138,7 @@ footer{padding:56px 24px 80px;text-align:center}
 <main>
 
 <!-- ======================= hero ======================= -->
-<section style="min-height:70vh;display:flex;flex-direction:column;justify-content:center;border:none">
+<section class="hero-bg" style="min-height:82vh;display:flex;flex-direction:column;justify-content:center;border:none;margin:0 -20px;padding-left:20px;padding-right:20px">
   <p class="small" style="letter-spacing:.25em;text-transform:uppercase">Groveland · California · A Proposed Expedition</p>
   <h1>GROVELAND 1849</h1>
   <p class="tag">Ten strangers. Ten secrets. Seven days in 1849. One path to the gold.</p>
@@ -154,6 +163,7 @@ footer{padding:56px 24px 80px;text-align:center}
 <section aria-label="Your expedition kit">
   <h2>Your Expedition Kit</h2>
   <p class="sub">Issued on Day 0 with your 1849 identity. Choose what you carry — the trail charges for every pound. Select an item to inspect it.</p>
+  <img class="kitphoto" src="assets/kit.jpg" alt="The expedition kit, photographed: hat, coat, boots, gold pan, pickaxe, shovel, lantern, canteen, bedroll, flour, salt pork, coffee pot, token pouch, sealed letter and survey map on a dark table.">
   <div class="invwrap">
     <div class="slots" id="slots" role="listbox" aria-label="Inventory"></div>
     <div class="itemcard" id="itemcard">
@@ -177,12 +187,12 @@ footer{padding:56px 24px 80px;text-align:center}
   <h2>The Company&rsquo;s Assets</h2>
   <p class="sub">Shared by all ten. Nobody rides alone.</p>
   <div class="units">
-    <div class="unit"><svg><use href="#i-horse"/></svg><b>Saddle Horse</b><p>Carries 150 lb · shortens the Day 1 climb</p></div>
-    <div class="unit"><svg><use href="#i-wagon"/></svg><b>Supply Wagon</b><p>Freight 800 lb · trail only, never the river</p></div>
-    <div class="unit"><svg><use href="#i-boat"/></svg><b>Keelboat</b><p>Five guests and freight · the Day 2 river road — and the Day 5 escape</p></div>
-    <div class="unit"><svg><use href="#i-tent"/></svg><b>Night Camp</b><p>Fire, watch rotation, rest · Days 1, 2 and 4</p></div>
-    <div class="unit"><svg><use href="#i-house"/></svg><b>Boarding House</b><p>A real bed in the settlement · 2 gold tokens a night</p></div>
-    <div class="unit"><svg><use href="#i-mine"/></svg><b>The Mine</b><p>Day 6 · ten fragments, one route, underground</p></div>
+    <div class="unit"><div class="ph" role="img" aria-label="A saddled horse under evening pines" style="background-image:url(assets/units-b.jpg);background-position:0% 0%"></div><b>Saddle Horse</b><p>Carries 150 lb · shortens the Day 1 climb</p></div>
+    <div class="unit"><div class="ph" role="img" aria-label="A canvas-covered supply wagon" style="background-image:url(assets/units-a.jpg);background-position:50% 0%"></div><b>Supply Wagon</b><p>Freight 800 lb · trail only, never the river</p></div>
+    <div class="unit"><div class="ph" role="img" aria-label="A wooden boat moored on a misty river at dusk" style="background-image:url(assets/units-b.jpg);background-position:100% 0%"></div><b>Keelboat</b><p>Five guests and freight · the Day 2 river road — and the Day 5 escape</p></div>
+    <div class="unit"><div class="ph" role="img" aria-label="A canvas tent and wagon camp under the pines" style="background-image:url(assets/units-b.jpg);background-position:50% 0%"></div><b>Night Camp</b><p>Fire, watch rotation, rest · Days 1, 2 and 4</p></div>
+    <div class="unit"><div class="ph" role="img" aria-label="A two-storey frontier boarding house with lit windows at night" style="background-image:url(assets/units-b.jpg);background-position:100% 100%"></div><b>Boarding House</b><p>A real bed in the settlement · 2 gold tokens a night</p></div>
+    <div class="unit"><div class="ph" role="img" aria-label="A timbered mine entrance glowing with lantern light" style="background-image:url(assets/units-b.jpg);background-position:0% 100%"></div><b>The Mine</b><p>Day 6 · ten fragments, one route, underground</p></div>
   </div>
 </section>
 
@@ -191,43 +201,11 @@ footer{padding:56px 24px 80px;text-align:center}
   <h2>The Survey Map</h2>
   <p class="sub">Seven days of country. Territory ahead of the company stays unexplored until you reach it.</p>
   <div class="mapbox">
-    <svg id="mapsvg" viewBox="0 0 960 460" role="img" aria-label="Hand-drawn survey map of the eight-day route from the threshold, up the Sierra, along the river to the settlement, over the broken trail, past the outlaw ambush, into the mine, and on to the bonanza site.">
-      <rect width="960" height="460" fill="#D8C39A"/>
-      <rect width="960" height="460" fill="url(#paperspots)" opacity="0"/>
-      <!-- border -->
-      <rect x="14" y="14" width="932" height="432" fill="none" stroke="#241A12" stroke-width="2"/>
-      <rect x="20" y="20" width="920" height="420" fill="none" stroke="#241A12" stroke-width=".7" opacity=".6"/>
-      <!-- mountains -->
-      <g stroke="#241A12" fill="none" stroke-width="1.3" opacity=".75">
-        <path d="M300 120l24-34 20 26 16-20 22 30"/><path d="M360 96l18-26 22 30 14-16 20 24"/>
-        <path d="M430 150l20-28 18 24 14-18 20 26"/><path d="M690 110l22-30 18 24 16-20 22 28"/>
-        <path d="M740 150l18-24 16 20 14-16 18 24"/><path d="M180 190l18-24 16 20 12-14 18 22"/>
-      </g>
-      <!-- river -->
-      <path d="M60 330 C 200 300, 300 360, 430 330 S 640 260, 730 300 S 880 350, 920 320" fill="none" stroke="#435D62" stroke-width="14" opacity=".55"/>
-      <path d="M60 330 C 200 300, 300 360, 430 330 S 640 260, 730 300 S 880 350, 920 320" fill="none" stroke="#435D62" stroke-width="4"/>
-      <text x="150" y="368" font-family="Georgia" font-style="italic" font-size="17" fill="#435D62">Tuolumne River</text>
-      <!-- trees -->
-      <g fill="#4C5138" opacity=".8">
-        <path d="M120 240l8-18 8 18zM140 252l8-18 8 18zM110 264l8-18 8 18z"/>
-        <path d="M560 380l8-18 8 18zM584 388l8-18 8 18zM540 392l8-18 8 18z"/>
-        <path d="M820 210l8-18 8 18zM844 220l8-18 8 18z"/>
-      </g>
-      <!-- trail -->
-      <path id="trail" d="M80 396 C 140 340, 180 300, 250 280 S 380 300, 430 330 S 560 350, 610 300 S 640 220, 700 210 S 800 240, 830 200 S 860 130, 900 110" fill="none" stroke="#5A211F" stroke-width="2.5" stroke-dasharray="7 6"/>
-      <!-- compass -->
-      <g transform="translate(880,70)" stroke="#241A12" fill="#241A12">
-        <circle r="20" fill="none" stroke-width="1.4"/><path d="M0 -17L5 0L0 17L-5 0z" fill="#5A211F" stroke="none"/><text y="-26" text-anchor="middle" font-family="Georgia" font-size="13">N</text>
-      </g>
-      <!-- landmarks -->
-      <g id="lm-settle" transform="translate(596,282)"><rect x="-14" y="-10" width="28" height="16" fill="#3A2418"/><path d="M-18 -8l18-12 18 12" fill="none" stroke="#241A12" stroke-width="2"/><text x="-30" y="34" text-anchor="middle" font-family="Georgia" font-style="italic" font-size="13" fill="#241A12">Settlement</text></g>
-      <g id="lm-mine" transform="translate(826,196)"><path d="M-12 8V-4c0-8 6-12 12-12s12 4 12 12V8z" fill="#241A12"/><text x="0" y="26" text-anchor="middle" font-family="Georgia" font-style="italic" font-size="13" fill="#241A12">The Mine</text></g>
-      <g id="lm-x" transform="translate(898,108)"><path d="M-8 -8L8 8M-8 8L8 -8" stroke="#5A211F" stroke-width="4"/></g>
-      <!-- fog of the unexplored -->
-      <rect id="fog" x="20" y="20" width="920" height="420" fill="#B79A67" opacity=".55" style="clip-path:inset(0 0 0 100%)"/>
-      <!-- day nodes -->
-      <g id="nodes" font-family="Georgia" font-size="12" text-anchor="middle"></g>
-    </svg>
+    <div class="mapphoto" role="img" aria-label="An aged 1849 prospector's survey map: the river across the lower half, mountain ridges above, a dashed trail from the lower left past a frontier settlement to a mine and a red X in the upper right.">
+      <img src="assets/map.jpg" alt="">
+      <div class="fogx" id="fog"></div>
+      <div id="nodes"></div>
+    </div>
     <div class="daybtns" id="daybtns" role="tablist" aria-label="Days"></div>
     <p class="dayinfo" id="dayinfo"></p>
   </div>
@@ -360,20 +338,20 @@ select(13); /* the sealed secret */
 
 /* ---------------- campaign map ---------------- */
 var DAYS=[
- {t:"Day 0 · The Threshold",d:"Your 1849 identity, your kit, and a sealed secret.",x:80,y:396},
- {t:"Day 1 · Into the Sierra",d:"Wagons, horses, first camp, first gold pan.",x:250,y:280},
- {t:"Day 2 · The River Road",d:"Boats, rations, and strangers who sell information.",x:430,y:330},
- {t:"Day 3 · The Settlement",d:"A saloon, a trading post, prices paid in gold tokens.",x:610,y:300},
- {t:"Day 4 · The Broken Trail",d:"The clues stop agreeing with one another.",x:700,y:210},
- {t:"Day 5 · The Outlaws",d:"A staged pursuit and a run for the boats.",x:770,y:228},
- {t:"Day 6 · The Mine",d:"Ten fragments, one route, underground.",x:830,y:200},
- {t:"Day 7 · The Bonanza",d:"What you find depends on what you became.",x:898,y:110}
+ {t:"Day 0 · The Threshold",d:"Your 1849 identity, your kit, and a sealed secret.",x:9,y:84},
+ {t:"Day 1 · Into the Sierra",d:"Wagons, horses, first camp, first gold pan.",x:22,y:66},
+ {t:"Day 2 · The River Road",d:"Boats, rations, and strangers who sell information.",x:37,y:76},
+ {t:"Day 3 · The Settlement",d:"A saloon, a trading post, prices paid in gold tokens.",x:55,y:62},
+ {t:"Day 4 · The Broken Trail",d:"The clues stop agreeing with one another.",x:64,y:48},
+ {t:"Day 5 · The Outlaws",d:"A staged pursuit and a run for the boats.",x:73,y:42},
+ {t:"Day 6 · The Mine",d:"Ten fragments, one route, underground.",x:82,y:33},
+ {t:"Day 7 · The Bonanza",d:"What you find depends on what you became.",x:91,y:17}
 ];
-var nodes=$("nodes"), btns=$("daybtns"), cur=0;
+var nodes=document.getElementById("nodes"), btns=document.getElementById("daybtns"), cur=0;
 DAYS.forEach(function(dy,i){
-  var g=document.createElementNS("http://www.w3.org/2000/svg","g");
-  g.setAttribute("transform","translate("+dy.x+","+dy.y+")");
-  g.innerHTML='<circle r="11" fill="#D8C39A" stroke="#5A211F" stroke-width="2"/><text y="4" fill="#241A12" font-weight="bold">'+i+'</text>';
+  var g=document.createElement("div");
+  g.className="nd"; g.textContent=i;
+  g.style.left=dy.x+"%"; g.style.top=dy.y+"%";
   nodes.appendChild(g);
   var b=document.createElement("button");
   b.setAttribute("role","tab"); b.textContent="Day "+i;
@@ -382,15 +360,12 @@ DAYS.forEach(function(dy,i){
 });
 function day(i){
   cur=i;
-  $("dayinfo").innerHTML="<b>"+DAYS[i].t+"</b><br>"+DAYS[i].d;
-  var pct=(DAYS[i].x-20)/920*100;
-  $("fog").style.clipPath="inset(0 0 0 "+Math.min(100,pct+3)+"%)";
+  document.getElementById("dayinfo").innerHTML="<b>"+DAYS[i].t+"</b><br>"+DAYS[i].d;
+  var pct=Math.min(100,DAYS[i].x+5);
+  document.getElementById("fog").style.clipPath="inset(0 0 0 "+pct+"%)";
   Array.prototype.forEach.call(btns.children,function(el,j){el.setAttribute("aria-selected",j===i?"true":"false")});
   Array.prototype.forEach.call(nodes.children,function(el,j){
-    var c=el.querySelector("circle");
-    c.setAttribute("fill",j<=i?"#C69843":"#D8C39A");
-    c.setAttribute("stroke",j===i?"#241A12":"#5A211F");
-    el.style.opacity=j<=i?1:.55;
+    el.className="nd"+(j<=i?" on":" dim");
   });
 }
 day(0);
