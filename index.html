@@ -78,6 +78,21 @@ a.btn:hover,button.btn:hover{border-color:#f0dca6}
 .unit:hover{border-color:var(--gold);transform:perspective(900px) rotateX(3deg) translateY(-3px)}
 @media(max-width:860px){.buywrap{grid-template-columns:1fr}.cats{flex-direction:row;flex-wrap:wrap}.cats button{flex:1;min-width:110px}.viewer{position:static}}
 @media(prefers-reduced-motion:reduce){.stage .obj{animation:none}}
+/* ---------- identity select ---------- */
+.idtabs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+.idtabs button{padding:10px 14px;background:var(--panel);border:1px solid var(--line);color:var(--dim);font:600 .66rem/1 Cinzel,serif;letter-spacing:.14em;text-transform:uppercase;cursor:pointer}
+.idtabs button[aria-selected=true]{border-color:var(--gold);color:var(--ink);background:rgba(198,152,67,.14)}
+.idwrap{display:grid;grid-template-columns:minmax(0,1fr) 250px;gap:14px}
+.idgrid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;align-content:start}
+.idcard{aspect-ratio:334/470;background-repeat:no-repeat;background-size:500% 200%;border:1px solid var(--line);cursor:pointer;padding:0;transition:transform .15s,border-color .15s}
+.idcard:hover{border-color:var(--gold);transform:perspective(700px) rotateX(3deg) translateY(-2px)}
+.idcard[data-sel=true]{border-color:#f0dca6;box-shadow:0 0 0 2px rgba(240,220,166,.45)}
+.idview{background:var(--panel);border:1px solid var(--line);padding:14px;align-self:start;position:sticky;top:64px}
+.idview .big{aspect-ratio:334/470;background-repeat:no-repeat;background-size:500% 200%;border:1px solid rgba(198,152,67,.35);box-shadow:0 10px 26px rgba(0,0,0,.6)}
+.idview h3{font-size:1rem;margin:10px 0 2px;color:var(--ink)}
+.idview .cls{font:600 .56rem/1 Cinzel,serif;letter-spacing:.2em;text-transform:uppercase;color:var(--faint)}
+.idview .st{margin-top:8px;font-size:.8rem;color:var(--gold)}
+@media(max-width:860px){.idwrap{grid-template-columns:1fr}.idview{position:static}}
 /* ---------- company assets ---------- */
 .units{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px}
 .unit{background:var(--panel);border:1px solid var(--line);padding:16px}
@@ -186,17 +201,32 @@ footer{padding:56px 24px 80px;text-align:center}
 
 <!-- ======================= HUD ======================= -->
 <div class="hud" aria-label="Expedition status">
-  <div><small>Gold tokens</small><b id="hud-tokens">40</b></div>
+  <div><small>Gold tokens</small><b id="hud-tokens">60</b></div>
   <div><small>Rations</small><b id="hud-rations">0 days</b></div>
   <div><small>Pack weight</small><b id="hud-weight">1.2 / 30 lb</b></div>
-  <div><small>Company</small><b>10 / 10</b></div>
+  <div><small>Identity</small><b id="hud-id">—</b></div>
   <div><small>Secrets held</small><b>1 of 10</b></div>
 </div>
 
 <!-- ======================= inventory ======================= -->
+<section aria-label="Choose your 1849 identity" id="identity">
+  <h2>Choose Your 1849 Identity</h2>
+  <p class="sub">Seventy travellers stand ready at the threshold. Choose the roster of your origin, then the person you will be for seven days. Every identity carries its own story — and its own sealed secret.</p>
+  <div class="idtabs" id="idtabs" role="tablist" aria-label="Rosters"></div>
+  <div class="idwrap">
+    <div class="idgrid" id="idgrid" role="listbox" aria-label="Characters"></div>
+    <div class="idview">
+      <div class="big" id="id-big" role="img" aria-label="Selected character portrait"></div>
+      <p class="cls" id="id-cls">—</p>
+      <h3 id="id-name">Select a traveller</h3>
+      <p class="st" id="id-st"></p>
+    </div>
+  </div>
+</section>
+
 <section aria-label="The Outfitter — buy your kit">
   <h2>The Outfitter</h2>
-  <p class="sub">Groveland General Store, Day 0. You are issued 40 gold tokens — outfit yourself before the wagons leave. You cannot afford everything; the trail charges for every pound you carry. Press 1–6 to switch shelves.</p>
+  <p class="sub">Groveland General Store, Day 0. You are issued 60 gold tokens — outfit yourself before the wagons leave. You cannot afford everything; the trail charges for every pound you carry. Press 1–9 and 0 to switch shelves.</p>
   <img class="kitphoto" src="assets/kit.jpg" alt="The outfitter's counter, photographed: hat, wool coat, leather jacket, boots, gloves, bandana, rain slicker, canvas rucksack, gold pan, pickaxe, shovel, lantern, canteen, bedroll, provisions, coffee pot, percussion rifle prop, brass compass, token pouch, sealed letter and survey map.">
   <div class="buywrap">
     <nav class="cats" id="cats" aria-label="Store shelves"></nav>
@@ -313,64 +343,119 @@ document.getElementById("details").href=gmail("Groveland 1849 — Project Detail
 document.getElementById("mailfoot").href="mailto:"+EMAIL;
 var $=function(id){return document.getElementById(id)};
 
-/* ---------------- the outfitter (CS-style buy menu) ---------------- */
-var START_TOKENS=40, LIMIT=30;
+/* ---------------- identity + the outfitter (CS-style) ---------------- */
+var START_TOKENS=60, LIMIT=30;
+var $=function(id){return document.getElementById(id)};
+
+/* ----- identity rosters (5x2 sheets, names baked into the cards) ----- */
+var ROSTERS=[
+ {id:"mn",label:"Mongolian",img:"roster-mn.jpg",names:["Bat-Erdene","Temuulen","Ganbaatar","Tulga","Munkh-Orgil","Saruul","Anu","Nomin","Uyanga","Maral"]},
+ {id:"en",label:"English",img:"roster-en.jpg",names:["Arthur Blackwood","Edward Ashcroft","James Harrow","William Fox","Thomas Drake","Charlotte Pembroke","Eleanor Whitmore","Beatrice Hawthorne","Victoria Langley","Rosamund Fairchild"]},
+ {id:"fr",label:"French",img:"roster-fr.jpg",names:["Lucien Moreau","Etienne Leroy","Bastien Dubois","Marcel Renaud","Thierry Garnier","Camille Beaumont","Elodie Martin","Juliette Roux","Madeleine Laurent","Celine Fabre"]},
+ {id:"de",label:"German",img:"roster-de.jpg",names:["Friedrich Adler","Lukas Bauer","Matthias Kruger","Heinrich Vogel","Otto Reinhardt","Greta Weiss","Clara Hoffmann","Elise Wagner","Ingrid Keller","Helena Brandt"]},
+ {id:"es",label:"Spanish",img:"roster-es.jpg",names:["Alejandro Serrano","Diego Valdes","Rafael Montoro","Martin Salazar","Julian Vega","Ines Navarro","Catalina Rojas","Lucia Herrera","Carmen Alarcon","Sofia Mendoza"]},
+ {id:"us",label:"American",img:"roster-us.jpg",names:["Malcolm Freeman","Josiah King","Emmanuel Cole","Andre Baptiste","Kwame Mensah","Amara Bell","Celeste Duval","Naomi Carter","Zora Bennett","Josephine Reed"]},
+ {id:"x2",label:"Frontier",img:"roster-x2.jpg",names:["Owen Hale","Mateo Ruiz","Gabriel Reed","Nathan Cole","Adrian Vale","Victor Laurent","Rosa Delgado","Evelyn Hart","Li Xiu","Mara Redwood"]}
+];
+var curRoster=ROSTERS[0], curId=null;
+function cell5(img,i){var x=i%5,y=Math.floor(i/5);
+  return "background-image:url(assets/"+img+");background-position:"+(x*25)+"% "+(y*100)+"%;";}
+var idtabs=$("idtabs");
+ROSTERS.forEach(function(r){
+  var b=document.createElement("button");
+  b.setAttribute("role","tab"); b.textContent=r.label; b.dataset.r=r.id;
+  b.addEventListener("click",function(){setRoster(r)});
+  idtabs.appendChild(b);
+});
+function setRoster(r){
+  curRoster=r;
+  Array.prototype.forEach.call(idtabs.children,function(el){el.setAttribute("aria-selected",el.dataset.r===r.id?"true":"false")});
+  var g=$("idgrid"); g.innerHTML="";
+  r.names.forEach(function(nm,i){
+    var c=document.createElement("button");
+    c.className="idcard"; c.setAttribute("role","option");
+    c.setAttribute("aria-label",nm); c.style.cssText=cell5(r.img,i);
+    c.dataset.sel=(curId===r.id+i);
+    c.addEventListener("click",function(){pickId(r,i)});
+    g.appendChild(c);
+  });
+}
+function pickId(r,i){
+  curId=r.id+i;
+  setRoster(r);
+  $("id-big").style.cssText=cell5(r.img,i);
+  $("id-cls").textContent=r.label+" roster";
+  $("id-name").textContent=r.names[i];
+  $("id-st").textContent="Chosen. This traveller's sealed secret is issued at the threshold.";
+  $("hud-id").textContent=r.names[i].split(" ")[0];
+}
+setRoster(ROSTERS[0]);
+
+/* ----- store data ----- */
 var CATS=[
- ["attire","Attire"],["tools","Tools"],["provisions","Provisions"],
- ["camp","Camp & Gear"],["arms","Arms"],["papers","Issued"]
+ ["attire","Attire","1"],["mining","Mining Tools","2"],["provisions","Provisions","3"],
+ ["packs","Packs","4"],["knives","Knives","5"],["tents","Tents","6"],
+ ["arms","Firearms · props","7"],["horses","Horses","8"],["dogs","Dogs","9"],
+ ["boats","Boats","0"],["papers","Issued",""]
 ];
 var ITEMS=[
- {id:"hat",ph:"a,0,0",icon:"i-hat",name:"Slouch Hat",cat:"attire",w:0.5,p:2,u:55,fl:"Keeps the sun and the rain honest."},
- {id:"coat",ph:"a,1,0",icon:"i-coat",name:"Wool Frock Coat",cat:"attire",w:3,p:5,u:75,fl:"Sierra nights forgive nothing."},
- {id:"jacket",ph:"a,2,0",icon:"i-jacket",name:"Leather Jacket",cat:"attire",w:4,p:9,u:70,fl:"Turns brush, wind and rope burn."},
- {id:"boots",ph:"a,0,1",icon:"i-boots",name:"Miner's Boots",cat:"attire",w:4,p:6,u:90,fl:"Seven days of river stone and switchback."},
- {id:"gloves",ph:"a,1,1",icon:"i-gloves",name:"Leather Gloves",cat:"attire",w:0.5,p:3,u:60,fl:"The rope is rough and the river is cold."},
- {id:"bandana",ph:"a,2,1",icon:"i-bandana",name:"Bandana",cat:"attire",w:0.2,p:1,u:40,fl:"Dust on the trail, a little anonymity in the saloon."},
- {id:"slicker",ph:"b,0,0",icon:"i-slicker",name:"Rain Slicker",cat:"attire",w:2.5,p:5,u:65,fl:"Sierra storms don't send word ahead."},
- {id:"pan",ph:"b,1,0",icon:"i-pan",name:"Gold Pan",cat:"tools",w:2,p:4,u:95,fl:"Swirl, tilt, and watch the black sand for a wink."},
- {id:"pick",ph:"b,2,0",icon:"i-pick",name:"Pickaxe",cat:"tools",w:6,p:7,u:80,fl:"For the quartz seam you hope is waiting."},
- {id:"shovel",ph:"b,0,1",icon:"i-shovel",name:"Shovel",cat:"tools",w:5,p:5,u:70,fl:"Every claim begins as a hole."},
- {id:"lantern",ph:"b,1,1",icon:"i-lantern",name:"Oil Lantern",cat:"tools",w:2,p:6,u:85,fl:"On Day 6, light is the only currency underground."},
- {id:"canteen",ph:"b,2,1",icon:"i-canteen",name:"Canteen",cat:"tools",w:1,p:3,u:65,fl:"The river is not always beside the trail."},
- {id:"compass",ph:"c,0,0",icon:"i-compass",name:"Brass Compass",cat:"tools",w:0.5,p:7,u:88,fl:"The one companion that never lies — about north, anyway."},
- {id:"flour",ph:"c,1,0",icon:"i-flour",name:"Flour, 10 lb",cat:"provisions",w:7,p:8,u:85,days:4,fl:"Biscuit tonight, or leverage on Day 4."},
- {id:"pork",ph:"c,2,0",icon:"i-pork",name:"Salt Pork",cat:"provisions",w:5,p:9,u:80,days:2,fl:"Worth more than gold on the broken trail."},
- {id:"coffee",ph:"c,1,1",icon:"i-coffee",name:"Coffee & Pot",cat:"provisions",w:2,p:6,u:50,days:1,fl:"The night watch runs on it."},
- {id:"pack",ph:"c,0,1",icon:"i-pack",name:"Canvas Rucksack",cat:"camp",w:2,p:5,u:90,fl:"Everything you keep, you carry."},
- {id:"bedroll",ph:"c,2,1",icon:"i-bedroll",name:"Bedroll",cat:"camp",w:4,p:4,u:75,fl:"Canvas, wool, and whatever ground you earn."},
- {id:"rifle",phb:"kit,30,82,38,13",icon:"i-rifle",name:"Percussion Rifle & Cartridges",cat:"arms",w:9,p:14,u:60,fl:"A prospector's companion. On this expedition it is a theatrical stage prop — no live weapons are ever used against participants."},
- {id:"tokens",phb:"d,28,60,14,34",icon:"i-tokens",name:"Token Pouch",cat:"papers",w:1,p:0,u:100,issued:true,fl:"Period-style gold tokens. The settlement takes nothing else."},
- {id:"secret",phb:"d,62,60,16,34",icon:"i-secret",name:"Sealed Secret",cat:"papers",w:0,p:0,u:100,issued:true,fl:"One tenth of the route. Share it — or don't."},
- {id:"map",phb:"d,62,36,16,30",icon:"i-map",name:"Survey Map, incomplete",cat:"papers",w:0.2,p:0,u:100,issued:true,fl:"Nine tenths of it are in other pockets."}
+ {id:"hat",ph:"a,0,0",name:"Slouch Hat",cat:"attire",w:0.5,p:2},
+ {id:"coat",ph:"a,1,0",name:"Wool Frock Coat",cat:"attire",w:3,p:5},
+ {id:"jacket",ph:"a,2,0",name:"Leather Jacket",cat:"attire",w:4,p:9},
+ {id:"boots",ph:"a,0,1",name:"Miner's Boots",cat:"attire",w:4,p:6},
+ {id:"gloves",ph:"a,1,1",name:"Leather Gloves",cat:"attire",w:0.5,p:3},
+ {id:"bandana",ph:"a,2,1",name:"Bandana",cat:"attire",w:0.2,p:1},
+ {id:"slicker",ph:"b,0,0",name:"Rain Slicker",cat:"attire",w:2.5,p:5},
+ {id:"flour",ph:"c,1,0",name:"Flour, 10 lb",cat:"provisions",w:7,p:8,days:4},
+ {id:"pork",ph:"c,2,0",name:"Salt Pork",cat:"provisions",w:5,p:9,days:2},
+ {id:"coffee",ph:"c,1,1",name:"Coffee & Pot",cat:"provisions",w:2,p:6,days:1},
+ {id:"tokens",phb:"d,28,60,14,34",name:"Token Pouch",cat:"papers",w:1,p:0,issued:true},
+ {id:"secret",phb:"d,62,60,16,34",name:"Sealed Secret",cat:"papers",w:0,p:0,issued:true},
+ {id:"map",phb:"d,62,36,16,30",name:"Survey Map, incomplete",cat:"papers",w:0.2,p:0,issued:true}
 ];
+function addCat(sheet,cat,rows){
+  rows.forEach(function(r,i){
+    ITEMS.push({id:cat+i,ph5:sheet+","+i,name:r[0],cat:cat,p:r[1],w:r[2]||0,nc:r[2]===undefined});
+  });
+}
+addCat("cat-equip.jpg","mining",[["Gold Pan",4,2],["Pickaxe",7,6],["Shovel",5,5],["Rocker Box",12,14],["Sluice Box",14,18],["Classifier Sieve",6,3],["Miner's Lantern",6,2],["Brass Compass",7,0.5],["Canvas Bedroll",4,4],["Tin Canteen",3,1]]);
+addCat("cat-pack.jpg","packs",[["Canvas Rucksack",5,2],["Leather Knapsack",6,3],["Wood-Frame Pack",7,5],["Pack Basket",4,3],["Bedroll Pack",6,5],["Prospector's Pack",8,4],["Surveyor's Pack",8,4],["Portage Pack",7,6],["Tool Pack",8,7],["Mountain Pack",9,5]]);
+addCat("cat-knife.jpg","knives",[["Bowie Knife",5,1],["Hunting Knife",4,1],["Skinning Knife",4,1],["Trade Knife",2,1],["Butcher Knife",3,1.5],["Patch Knife",2,0.5],["Belt Knife",4,1],["Folding Knife",3,0.5],["Sailor's Knife",3,1],["Camp Knife",5,1.5]]);
+addCat("cat-tent.jpg","tents",[["Wedge Tent",6],["Wall Tent",10],["Bell Tent",12],["Marquee Tent",14],["Baker Tent",8],["Lean-to Shelter",3],["Fly Shelter",4],["Pyramid Tent",9],["Pack Tent",5],["Company Tent",16]]);
+addCat("cat-arms.jpg","arms",[["Hawken Rifle",14,9],["Kentucky Rifle",13,9],["Percussion Musket",10,9],["Trade Gun",8,8],["Double-Barrel Shotgun",15,8],["Walker Revolver",12,4],["Dragoon Revolver",12,4],["Pepperbox Pistol",6,2],["Deringer Pistol",4,1],["Percussion Pistol",7,3]]);
+addCat("cat-horse.jpg","horses",[["Bay",14],["Chestnut",14],["Black",18],["Gray",16],["Palomino",17],["Buckskin",15],["Dun",13],["Roan",12],["Pinto",15],["Appaloosa",16]]);
+addCat("cat-dog.jpg","dogs",[["Newfoundland",10],["Saint Bernard",10],["Bloodhound",9],["English Mastiff",11],["Scottish Collie",8],["Foxhound",7],["Greyhound",8],["Water Spaniel",7],["Working Terrier",5],["Shepherd Dog",9]]);
+addCat("cat-boat.jpg","boats",[["Keelboat",20],["Flatboat",16],["Bateau",12],["Skiff",8],["Rowboat",9],["Dugout Canoe",6],["Ferry Scow",14],["Timber Raft",5],["Punt",6],["Whitehall Boat",12]]);
 ITEMS.forEach(function(it){it.owned=!!it.issued});
+
+var FLAVOR={attire:"Worn on the trail from Day 0.",mining:"The claim rewards the well-equipped.",provisions:"The trail charges for every meal you did not pack.",packs:"Everything you keep, you carry.",knives:"A camp runs on one good blade.",tents:"Your roof for six Sierra nights — carried by the wagon.",arms:"Theatrical stage props of the 1849 frontier — no live weapons are ever used against participants.",horses:"Shortens the climb. Travels with the company, not on your back.",dogs:"A companion for the night watch.",boats:"The river road is faster — when the river agrees.",papers:"Issued at the threshold."};
+
 var curCat="attire", sel=null;
-var $=function(id){return document.getElementById(id)};
 function tokens(){return START_TOKENS - ITEMS.reduce(function(s,it){return s+(it.owned&&!it.issued?it.p:0)},0)}
 function weight(){return ITEMS.reduce(function(s,it){return s+(it.owned?it.w:0)},0)}
 function rations(){return ITEMS.reduce(function(s,it){return s+(it.owned&&it.days?it.days:0)},0)}
-function icon(id){return '<svg aria-hidden="true"><use href="#'+id+'"/></svg>'}
 function phCss(it){
-  if(it.ph){var p=it.ph.split(","),img=p[0]==="kit"?"kit.jpg":"items-"+p[0]+".jpg";
-    return "background-image:url(assets/"+img+");background-size:300% 200%;background-position:"+(p[1]*50)+"% "+(p[2]*100)+"%;";}
-  if(it.phb){var q=it.phb.split(","),im=q[0]==="kit"?"kit.jpg":"items-"+q[0]+".jpg";
-    var x=+q[1],y=+q[2],w=+q[3],h=+q[4];
-    return "background-image:url(assets/"+im+");background-size:"+(10000/w)+"% "+(10000/h)+"%;background-position:"+(x/(100-w)*100)+"% "+(y/(100-h)*100)+"%;";}
+  if(it.ph){var p=it.ph.split(",");
+    return "background-image:url(assets/items-"+p[0]+".jpg);background-size:300% 200%;background-position:"+(p[1]*50)+"% "+(p[2]*100)+"%;";}
+  if(it.ph5){var q=it.ph5.split(","),i=+q[1];
+    return "background-image:url(assets/"+q[0]+");background-size:500% 200%;background-position:"+((i%5)*25)+"% "+(Math.floor(i/5)*100)+"%;";}
+  if(it.phb){var r=it.phb.split(","),x=+r[1],y=+r[2],w=+r[3],h=+r[4];
+    return "background-image:url(assets/items-"+r[0]+".jpg);background-size:"+(10000/w)+"% "+(10000/h)+"%;background-position:"+(x/(100-w)*100)+"% "+(y/(100-h)*100)+"%;";}
   return "";}
-function thumb(it,cls){var c=phCss(it);return c?'<span class="'+(cls||'itph')+'" style="'+c+'" aria-hidden="true"></span>':icon(it.icon)}
+function thumb(it,cls){return '<span class="'+(cls||'itph')+'" style="'+phCss(it)+'" aria-hidden="true"></span>'}
 
 var catsEl=$("cats");
 CATS.forEach(function(c,i){
   var b=document.createElement("button");
-  b.innerHTML='<span class="k">'+(i+1)+'</span>'+c[1];
+  b.innerHTML=(c[2]?'<span class="k">'+c[2]+'</span>':'<span class="k">·</span>')+c[1];
   b.addEventListener("click",function(){setCat(c[0])});
   b.dataset.cat=c[0];
   catsEl.appendChild(b);
 });
 document.addEventListener("keydown",function(e){
   if(e.target.tagName==="INPUT"||e.target.tagName==="SELECT"||e.target.tagName==="TEXTAREA")return;
-  var n=parseInt(e.key,10);
-  if(n>=1&&n<=CATS.length)setCat(CATS[n-1][0]);
+  var c=CATS.find(function(x){return x[2]===e.key});
+  if(c)setCat(c[0]);
 });
 function setCat(c){
   curCat=c;
@@ -384,7 +469,7 @@ function renderShop(){
     r.className="shoprow"; r.setAttribute("role","option");
     r.dataset.sel=(sel===it.id); r.setAttribute("aria-selected",sel===it.id?"true":"false");
     r.dataset.cant=(!it.owned && !it.issued && it.p>tokens());
-    r.innerHTML=thumb(it)+'<span class="nm">'+it.name+'<small>'+it.w+' lb'+(it.days?' · '+it.days+' days of rations':'')+'</small></span>'+
+    r.innerHTML=thumb(it)+'<span class="nm">'+it.name+'<small>'+(it.w?it.w+' lb':'carried by the company')+(it.days?' · '+it.days+' days of rations':'')+'</small></span>'+
       (it.owned?'<span class="own">'+(it.issued?'ISSUED':'OWNED')+'</span>':'<span class="pr">'+it.p+' gt</span>');
     r.addEventListener("click",function(){view(it.id)});
     shop.appendChild(r);
@@ -395,10 +480,10 @@ function view(id){
   $("v-obj").innerHTML=thumb(it,"objph");
   $("v-cls").textContent=CATS.find(function(c){return c[0]===it.cat})[1]+(it.issued?" · issued at the threshold":"");
   $("v-name").textContent=it.name;
-  $("v-fl").textContent=it.fl;
-  $("b-w").style.setProperty("--v",Math.min(100,it.w/9*100)+"%");
-  $("b-c").style.setProperty("--v",Math.min(100,it.p/14*100)+"%");
-  $("b-u").style.setProperty("--v",it.u+"%");
+  $("v-fl").textContent=FLAVOR[it.cat]||"";
+  $("b-w").style.setProperty("--v",Math.min(100,(it.w||0)/18*100)+"%");
+  $("b-c").style.setProperty("--v",Math.min(100,it.p/20*100)+"%");
+  $("b-u").style.setProperty("--v",Math.min(95,40+it.p*3)+"%");
   var btn=$("v-buy");
   if(it.issued){btn.textContent="Issued — always carried";btn.disabled=true;btn.dataset.mode="";}
   else if(it.owned){btn.textContent="Sell back  ·  +"+it.p+" gt";btn.disabled=false;btn.dataset.mode="sell";}
@@ -411,7 +496,7 @@ $("v-buy").addEventListener("click",function(){
   if(!it.owned){
     if(it.p>tokens()){$("v-flash").textContent="Not enough gold tokens.";return;}
     it.owned=true;
-    if(weight()>LIMIT)$("v-flash").textContent="Bought — but you are now overloaded.";
+    if(weight()>LIMIT)$("v-flash").textContent="Bought — but your pack is now overloaded.";
   } else { it.owned=false; }
   view(it.id);
 });
